@@ -1,0 +1,96 @@
+---
+title: "Data624 Time Series Decomposition Assignment3"
+author: "Ritesh Lohiya"
+date: "February 22, 2019"
+output: html_document
+---
+
+# Data624 Time Series Decomposition Assignment3
+
+# Chapter 6
+
+#install.packages("seasonal")
+```{r}
+suppressMessages(suppressWarnings(library(fpp2)))
+suppressMessages(suppressWarnings(library(forecast)))
+suppressMessages(suppressWarnings(library(fma)))
+suppressMessages(suppressWarnings(library(seasonal)))
+```
+
+####6.2 The plastics data set consists of the monthly sales (in thousands) of product A for a plastics manufacturer for five years. There is a positive trend throughout the series.
+
+
+####a. Plot the time series of sales of product A. Can you identify seasonal fluctuations and/or a trend-cycle?
+
+```{r}
+autoplot(plastics)  +   xlab("Time") +   ylab("Sales")
+```
+
+#### Yes, we can see seasonal fluctuations where sales grow midway and drops at the beginning and end of the year. Also there is upward trend as the years increase.
+
+####b. Use a classical multiplicative decomposition to calculate the trend-cycle and seasonal indices.
+
+```{r}
+decompose_plastics <- decompose(plastics, type = "multiplicative")
+autoplot(decompose_plastics) +   xlab("Time") +   ylab("Sales")
+```
+
+####c. Do the results support the graphical interpretation from part a?
+
+#### Yes, the results support the graphical interpretation from part a.
+
+####d. Compute and plot the seasonally adjusted data.
+
+```{r}
+autoplot(plastics, series="Data") +   autolayer(trendcycle(decompose_plastics), series="Trend") +
+autolayer(seasadj(decompose_plastics), series="Seasonally Adjusted") + xlab("Time") + ylab("Sales") +
+scale_colour_manual(values=c("green","blue","red"), breaks=c("Data","Seasonally Adjusted","Trend"))
+```
+
+####e. Change one observation to be an outlier (e.g., add 500 to one observation), and recompute the seasonally adjusted data. What is the effect of the outlier?
+
+```{r}
+plastics1 <- plastics
+plastics1[20] <- plastics1[20] + 500
+decompose_plastics1 <- decompose(plastics1,  type = "multiplicative")
+autoplot(plastics1, series = "Data") + autolayer(trendcycle(decompose_plastics1), series = "Trend") + autolayer(seasadj(decompose_plastics1),
+series = "Seasonally Adjusted") + xlab("Time") + ylab("Sales") +
+scale_color_manual(values=c("green", "blue", "red"), breaks=c("Data", "Seasonally Adjusted", "Trend"))
+```
+
+####Outliers affects the seasonally adjusted data severely.
+
+####f. Does it make any difference if the outlier is near the end rather than in the middle of the time series?
+
+```{r}
+plastics1[55] <- plastics1[55] + 500
+decompose_plastics1 <- decompose(plastics1, type = "multiplicative")
+
+autoplot(plastics1, series = "Data") + autolayer(trendcycle(decompose_plastics1), series = "Trend") + autolayer(seasadj(decompose_plastics1),
+series = "Seasonally Adjusted") + xlab("Time") + ylab("Sales") + scale_color_manual(values=c("green", "blue", "red"), breaks=c("Data", "Seasonally Adjusted", "Trend"))
+```
+
+#### If an outlier is near the end, the effect to trend decreases.
+
+#### 6.3 Recall your retail time series data (from Exercise 3 in Section 2.10). Decompose the series using X11. Does it reveal any outliers, or unusual features that you had not noticed previously?
+
+Retails data:
+
+```{r}
+retaildata <- readxl::read_excel("C:/Users/rites/Documents/GitHub/Data624_Assignment1/retail.xlsx", skip=1)
+myts <- ts(retaildata[,"A3349873A"],frequency=12, start=c(1982,4))
+autoplot(myts) + xlab("Time") + ylab("Sales")
+```
+
+####There are trend and seasonality.
+
+```{r}
+# Decompose the series using X11.
+retail_x11<- seas(myts, x11 = "")
+autoplot(retail_x11) + xlab("Time") + ylab("Sales")
+```
+
+#### There are outliers and the major one is in 2001. The seasonality effect decreases as trend increases.
+
+
+ 
